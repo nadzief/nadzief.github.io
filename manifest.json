@@ -1,13 +1,8 @@
 {
   "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "React App PWA",
   "start_url": "./",
   "icons": [
-    {
-      "src": "icon-192x192.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
     {
       "src": "icon-192x192.png",
       "sizes": "192x192",
