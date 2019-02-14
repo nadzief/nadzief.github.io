@@ -47,7 +47,12 @@ self.addEventListener('fetch', function(event) {
   if (doCache) {
     event.respondWith(
       caches.match(event.request).then(function(response) {
-        return response || fetch(event.request);
+        if(response){
+          // return cached files
+          return response  
+        } else {
+          return fetch(event.request)
+        }
       })
     );
   }
