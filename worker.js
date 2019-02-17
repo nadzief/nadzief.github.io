@@ -3,6 +3,66 @@ var doCache = false;
 
 var CACHE_NAME = 'pwa-app-cache';
 
+importScripts('/idb.js');
+
+const my_table = 'tb_warung';
+
+const objtb = idb.open('db_warung', 1, db => {
+    if(!db.objectStoreNames.contains(my_table)){
+        db.createObjectStore(my_table);
+    }
+});
+
+const idb_pos_trx = {
+    get(key){
+        return objtb.then(db => {
+            return db.transaction(my_table)
+                .objectStore(my_table).get(key);
+        });
+    },
+    getAll(){
+        return objtb.then(db => {
+            return db.transaction(my_table)
+                .objectStore(my_table).getAll();
+        });
+    },
+    set(key, val){
+        return objtb.then(db => {
+            const tx = db.transaction(my_table, 'readwrite');
+            tx.objectStore(my_table).put(val, key);
+            return tx.complete;
+        });
+    },
+    delete(key){
+        return objtb.then(db => {
+            const tx = db.transaction(my_table, 'readwrite');
+            tx.objectStore(my_table).delete(key);
+            return tx.complete;
+        });
+    },
+    clear(){
+        return objtb.then(db => {
+            const tx = db.transaction(my_table, 'readwrite');
+            tx.objectStore(my_table).clear();
+            return tx.complete;
+        });
+    },
+    keys(){
+        return objtb.then(db => {
+            const tx = db.transaction(my_table);
+            const keys = [];
+            const store = tx.objectStore(my_table);
+            (store.iterateKeyCursor || store.iterateCursor).call(store, cursor => {
+                if(!cursor) return;
+                keys.push(cursor.key);
+                cursor.continue();
+            });
+
+            return tx.complete.then(() => keys);
+        });
+    }
+};
+
 // Delete old caches
 self.addEventListener('activate', event => {
   const currentCachelist = [CACHE_NAME];
@@ -55,5 +115,16 @@ self.addEventListener('fetch', function(event) {
         }
       })
     );
+  }
+});
+
+self.addEventListener('sync', function(event){
+  console.log('ready for sync listener');
+  if(event.tag === 'sync-new-trx' ){
+    idb_pos_trx.getAll().then(function(all_row){
+      for (var pos_trx of all_row){
+        kirimData(pos_trx);
+      }
+    });
   }
 });
