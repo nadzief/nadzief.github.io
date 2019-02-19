@@ -8,58 +8,39 @@ importScripts('/idb.js');
 const my_table = 'tb_warung';
 
 const objtb = idb.open('db_warung', 1, db => {
-    if(!db.objectStoreNames.contains(my_table)){
-        db.createObjectStore(my_table);
-    }
+    db.createObjectStore(my_table);
 });
 
 const idb_pos_trx = {
-    get(key){
-        return objtb.then(db => {
-            return db.transaction(my_table)
-                .objectStore(my_table).get(key);
-        });
+    async get(key){
+      const db = await objtb;
+      return db.transaction(my_table).objectStore(my_table).get(key);
     },
-    getAll(){
-        return objtb.then(db => {
-            return db.transaction(my_table)
-                .objectStore(my_table).getAll();
-        });
+    async getAll(){
+      const db = await objtb;
+      return db.transaction(my_table).objectStore(my_table).getAll();
     },
-    set(key, val){
-        return objtb.then(db => {
-            const tx = db.transaction(my_table, 'readwrite');
-            tx.objectStore(my_table).put(val, key);
-            return tx.complete;
-        });
+    async set(key, val){
+      const db = await objtb;
+      const tx = db.transaction(my_table, 'readwrite', {autoIncrement: true});
+      tx.objectStore(my_table).put(val, key);
+      return tx.complete;
     },
-    delete(key){
-        return objtb.then(db => {
-            const tx = db.transaction(my_table, 'readwrite');
-            tx.objectStore(my_table).delete(key);
-            return tx.complete;
-        });
+    async delete(key){
+      const db = await objtb;
+      const tx = db.transaction(my_table, 'readwrite');
+      tx.objectStore(my_table).delete(key);
+      return tx.complete;
     },
-    clear(){
-        return objtb.then(db => {
-            const tx = db.transaction(my_table, 'readwrite');
-            tx.objectStore(my_table).clear();
-            return tx.complete;
-        });
+    async clear(){
+      const db = await objtb;
+      const tx = db.transaction(my_table, 'readwrite');
+      tx.objectStore(my_table).clear();
+      return tx.complete;
     },
-    keys(){
-        return objtb.then(db => {
-            const tx = db.transaction(my_table);
-            const keys = [];
-            const store = tx.objectStore(my_table);
-            (store.iterateKeyCursor || store.iterateCursor).call(store, cursor => {
-                if(!cursor) return;
-                keys.push(cursor.key);
-                cursor.continue();
-            });
-
-            return tx.complete.then(() => keys);
-        });
+    async keys(key){
+      const db = await objtb;
+      return db.transaction(my_table).objectStore(my_table).getAllKeys(key);
     }
 };
 
@@ -118,13 +99,57 @@ self.addEventListener('fetch', function(event) {
   }
 });
 
-self.addEventListener('sync', function(event){
-  console.log('ready for sync listener');
-  if(event.tag === 'sync-new-trx' ){
-    idb_pos_trx.getAll().then(function(all_row){
-      for (var pos_trx of all_row){
-        kirimData(pos_trx);
-      }
-    });
+self.addEventListener('offline', function(event){
+  console.log('network connection is offline')
+})
+
+self.addEventListener('online', function(event){
+  console.log('network connection is online')
+})
+
+self.addEventListener('sync', function(event) {
+  console.log('masuk ke sync listener', all_row);
+  if (event.tag === 'sync-new-trx') {
+    event.waitUntil(doSomeStuff()
+      .then(() => {
+        idb_pos_trx.getAll().then(function(all_row){
+          for(var pos_trx of all_row){
+            doSomeStuff(all_row);
+          }
+        });
+      })
+      .catch((err) => {
+        console.log('Error Apps Sync To Server', err);
+      })
+    );
   }
 });
+
+function doSomeStuff(datas){
+  console.log('processing data', datas.nama_warung);
+  return fetch('http://localhost:3333/post/warung',{
+    method: 'POST',
+    headers:{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      nama_warung: datas.nama_warung,
+      kode_warung: datas.kode_warung,
+      alamat: datas.alamat,
+      no_telp: datas.no_telp,
+      deksripsi: datas.deskripsi
+    })
+  })
+  .then(function(response){
+    response.text().then(function(textku){
+      if(textku === "oke"){
+        console.log('deleting data', datas.nama_warung);
+        idb_pos_trx.delete(datas.nama_warung)
+      }
+    });
+  })
+  .catch(function(err){
+    console.log('error', err);
+  });
+}
