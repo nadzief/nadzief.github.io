@@ -3,46 +3,7 @@ var doCache = false;
 
 var CACHE_NAME = 'pwa-app-cache';
 
-importScripts('/idb.js');
-
-const my_table = 'tb_warung';
-
-const objtb = idb.open('db_warung', 1, db => {
-    db.createObjectStore(my_table);
-});
-
-const idb_pos_trx = {
-    async get(key){
-      const db = await objtb;
-      return db.transaction(my_table).objectStore(my_table).get(key);
-    },
-    async getAll(){
-      const db = await objtb;
-      return db.transaction(my_table).objectStore(my_table).getAll();
-    },
-    async set(key, val){
-      const db = await objtb;
-      const tx = db.transaction(my_table, 'readwrite', {autoIncrement: true});
-      tx.objectStore(my_table).put(val, key);
-      return tx.complete;
-    },
-    async delete(key){
-      const db = await objtb;
-      const tx = db.transaction(my_table, 'readwrite');
-      tx.objectStore(my_table).delete(key);
-      return tx.complete;
-    },
-    async clear(){
-      const db = await objtb;
-      const tx = db.transaction(my_table, 'readwrite');
-      tx.objectStore(my_table).clear();
-      return tx.complete;
-    },
-    async keys(key){
-      const db = await objtb;
-      return db.transaction(my_table).objectStore(my_table).getAllKeys(key);
-    }
-};
+import { idb_pos_trx, kirimData } from '/views/post_trx';
 
 // Delete old caches
 self.addEventListener('activate', event => {
@@ -85,6 +46,7 @@ self.addEventListener('install', function(event) {
 
 // Here we intercept request and serve up the matching files
 self.addEventListener('fetch', function(event) {
+  console.log('fetch listener is stand by')
   if (doCache) {
     event.respondWith(
       caches.match(event.request).then(function(response) {
@@ -110,11 +72,11 @@ self.addEventListener('online', function(event){
 self.addEventListener('sync', function(event) {
   console.log('masuk ke sync listener', all_row);
   if (event.tag === 'sync-new-trx') {
-    event.waitUntil(doSomeStuff()
+    event.waitUntil(kirimData()
       .then(() => {
         idb_pos_trx.getAll().then(function(all_row){
           for(var pos_trx of all_row){
-            doSomeStuff(all_row);
+            kirimData(all_row);
           }
         });
       })
@@ -124,32 +86,3 @@ self.addEventListener('sync', function(event) {
     );
   }
 });
-
-function doSomeStuff(datas){
-  console.log('processing data', datas.nama_warung);
-  return fetch('http://localhost:3333/post/warung',{
-    method: 'POST',
-    headers:{
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-      nama_warung: datas.nama_warung,
-      kode_warung: datas.kode_warung,
-      alamat: datas.alamat,
-      no_telp: datas.no_telp,
-      deksripsi: datas.deskripsi
-    })
-  })
-  .then(function(response){
-    response.text().then(function(textku){
-      if(textku === "oke"){
-        console.log('deleting data', datas.nama_warung);
-        idb_pos_trx.delete(datas.nama_warung)
-      }
-    });
-  })
-  .catch(function(err){
-    console.log('error', err);
-  });
-}
