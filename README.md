@@ -1,3 +1,1 @@
-# pwa-react
-
-new apps pwa-react
+<h1> Website PWA React </h1>
