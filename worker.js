@@ -47,7 +47,7 @@ const idb_pos_trx = {
 function kirimData(pos_trx)
 {
     console.log('processing data to server ' + pos_trx.id);
-    fetch('http://localhost:3333/post/warung',{
+    fetch('http://langitsalam.com:3334/post/warung',{
         method: 'POST',
         headers:{
             'Content-Type':'application/json',
