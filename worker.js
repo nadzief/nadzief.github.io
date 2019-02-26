@@ -123,7 +123,7 @@ self.addEventListener('activate', function(event) {
 
 // This triggers when user starts the app
 self.addEventListener('install', function(event) {
-  console.log('Service worker is installing');
+  console.log('Service worker installing success');
   if (doCache) {
     event.waitUntil(
       caches.open(CACHE_NAME)
