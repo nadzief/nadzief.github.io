@@ -76,35 +76,6 @@ function kirimData(pos_trx)
     });
 }
 
-// function kirimData(tb_warung){
-//   console.log('processing data', tb_warung);
-//   fetch('http://localhost:3333/post/warung',{
-//     headers:{
-//     method: 'POST',
-//       'Content-Type': 'application/json',
-//       'Accept': 'application/json'
-//     },
-//     body: JSON.stringify({
-//       nama_warung: tb_warung.nama_warung,
-//       kode_warung: tb_warung.kode_warung,
-//       alamat: tb_warung.alamat,
-//       no_telp: tb_warung.no_telp,
-//       deksripsi: tb_warung.deskripsi
-//     })
-//   })
-//   .then(function(response){
-//     response.text().then(function(textku){
-//       if(textku === "oke"){
-//         console.log('deleting data', tb_warung.nama_warung);
-//         idb_pos_trx.delete(tb_warung.nama_warung)
-//       }
-//     });
-//   })
-//   .catch(function(err){
-//     console.log('error', err);
-//   });
-// }
-
 // Delete old caches
 self.addEventListener('activate', function(event) {
   console.log('Service worker activating');
