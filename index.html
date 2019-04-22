@@ -1,1 +1,85 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="Description" content="React Progressive Web Apps - React PWA"><link rel="manifest" href="/manifest.json"><link rel="shortcut icon" href="/icon-192x192.png"><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"/><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"><title>React PWA</title><link href="/static/css/main.07db2724.chunk.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div><script>"serviceWorker"in navigator?navigator.serviceWorker.register("/worker.js").then(function(o){console.log("Worker registration successful",o.scope)},function(o){console.log("Worker registration failed",o)}).catch(function(o){console.log(o)}):console.log("Service Worker is not supported by browser.")</script><script>!function(l){function e(e){for(var r,t,n=e[0],o=e[1],u=e[2],f=0,i=[];f<n.length;f++)t=n[f],p[t]&&i.push(p[t][0]),p[t]=0;for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(l[r]=o[r]);for(s&&s(e);i.length;)i.shift()();return c.push.apply(c,u||[]),a()}function a(){for(var e,r=0;r<c.length;r++){for(var t=c[r],n=!0,o=1;o<t.length;o++){var u=t[o];0!==p[u]&&(n=!1)}n&&(c.splice(r--,1),e=f(f.s=t[0]))}return e}var t={},p={2:0},c=[];function f(e){if(t[e])return t[e].exports;var r=t[e]={i:e,l:!1,exports:{}};return l[e].call(r.exports,r,r.exports,f),r.l=!0,r.exports}f.m=l,f.c=t,f.d=function(e,r,t){f.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},f.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},f.t=function(r,e){if(1&e&&(r=f(r)),8&e)return r;if(4&e&&"object"==typeof r&&r&&r.__esModule)return r;var t=Object.create(null);if(f.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:r}),2&e&&"string"!=typeof r)for(var n in r)f.d(t,n,function(e){return r[e]}.bind(null,n));return t},f.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return f.d(r,"a",r),r},f.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},f.p="/";var r=window.webpackJsonp=window.webpackJsonp||[],n=r.push.bind(r);r.push=e,r=r.slice();for(var o=0;o<r.length;o++)e(r[o]);var s=n;a()}([])</script><script src="/static/js/1.36a77a0e.chunk.js"></script><script src="/static/js/main.ee79a004.chunk.js"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="Description" content="React Progressive Web Apps - React PWA"><link rel="manifest" href="/manifest.json"><link rel="shortcut icon" href="/icon-192x192.png"><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"/><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"><title>React PWA</title><link href="/static/css/main.7c220036.chunk.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div><script src="https://unpkg.com/axios/dist/axios.min.js"></script><script>if('serviceWorker' in navigator && 'PushManager' in window){
+        console.log('Service worker and push notification is supported');
+
+        navigator.serviceWorker.register('worker.js')
+          .then(function(swReg){
+            if(Notification.permission == 'default'){
+              askPermission()
+            }
+            swRegistration = swReg;
+          })
+          .catch(function(error){
+            console.log('Service Worker Error', error);
+          });
+      } else{
+        console.log('Push messaging is not supported');
+        pushButton.textContent = 'push not supported';
+      }
+
+      function askPermission(){
+        return new Promise(function(resolve, reject){
+          const permissionResult = Notification.requestPermission(function(result){
+            resolve(result);
+            if(result === 'granted'){
+              subscribePush();
+            }
+          });
+
+          if(permissionResult){
+            permissionResult.then(resolve, reject);
+          }
+        }).then(function(permissionResult){
+          if(permissionResult !== 'granted'){
+            throw new Error('We weren\'t granted permission');
+          }
+        });
+      }
+
+      function subscribePush(){
+        const applicationServerKey = urlBase64ToUint8Array('BHdr03Mr4ZU7A2C0kfLCtFQ_Dsl3vFVZL251jtAwVJC_bwKm9p8XIPD38x0BR7mgKjVACAhuCi6LTWWa1gMfOqM=');
+        navigator.serviceWorker.ready.then(registration => {
+          if(!registration.pushManager){
+            alert('Push notification is not supported')
+            return
+          }
+          registration.pushManager
+            .subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: applicationServerKey
+            })
+            .then(
+              subscription => axios.post('http://localhost:3334/post/pushSubscribe', subscription)
+            )
+            .catch(err => console.log("Push subscription error", err))
+        })
+      }
+
+      function unsubscribePush(){
+        navigator.serviceWorker.ready.then(registration => {
+          registration.pushManager
+            .getSubscription()
+              .then(subscription => {
+                if(!subscription){
+                  return
+                }
+
+                subscription
+                  .unsubscribe()
+                  .then(() => axios.delete('http://localhost:3334/delete/pushUnsubscribe'))
+                  .catch(err => console.log(err))
+              })
+        })
+      }
+
+      function urlBase64ToUint8Array(base64String){
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g,'+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for(let i = 0; i < rawData.length; ++i){
+          outputArray[i] = rawData.charCodeAt(i);
+        }
+
+        return outputArray;
+      }</script><script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date;!function(){var e=document.createElement("script"),t=document.getElementsByTagName("script")[0];e.async=!0,e.src="https://embed.tawk.to/5cbd5e75d6e05b735b43a3c9/default",e.charset="UTF-8",e.setAttribute("crossorigin","*"),t.parentNode.insertBefore(e,t)}()</script><script>!function(l){function e(e){for(var r,t,n=e[0],o=e[1],u=e[2],f=0,i=[];f<n.length;f++)t=n[f],p[t]&&i.push(p[t][0]),p[t]=0;for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(l[r]=o[r]);for(s&&s(e);i.length;)i.shift()();return c.push.apply(c,u||[]),a()}function a(){for(var e,r=0;r<c.length;r++){for(var t=c[r],n=!0,o=1;o<t.length;o++){var u=t[o];0!==p[u]&&(n=!1)}n&&(c.splice(r--,1),e=f(f.s=t[0]))}return e}var t={},p={2:0},c=[];function f(e){if(t[e])return t[e].exports;var r=t[e]={i:e,l:!1,exports:{}};return l[e].call(r.exports,r,r.exports,f),r.l=!0,r.exports}f.m=l,f.c=t,f.d=function(e,r,t){f.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},f.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},f.t=function(r,e){if(1&e&&(r=f(r)),8&e)return r;if(4&e&&"object"==typeof r&&r&&r.__esModule)return r;var t=Object.create(null);if(f.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:r}),2&e&&"string"!=typeof r)for(var n in r)f.d(t,n,function(e){return r[e]}.bind(null,n));return t},f.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return f.d(r,"a",r),r},f.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},f.p="/";var r=window.webpackJsonp=window.webpackJsonp||[],n=r.push.bind(r);r.push=e,r=r.slice();for(var o=0;o<r.length;o++)e(r[o]);var s=n;a()}([])</script><script src="/static/js/1.36a77a0e.chunk.js"></script><script src="/static/js/main.475df244.chunk.js"></script></body></html>
