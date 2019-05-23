@@ -1,1 +1,0 @@
-<h1> Website PWA React </h1>
