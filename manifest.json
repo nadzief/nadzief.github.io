@@ -1,12 +1,6 @@
 {
-  "name": "React PWA",
   "short_name": "RPWA",
-  "theme_color": "#2e8bd5",
-  "background_color": "#1b7bc8",
-  "display": "standalone",
-  "orientation": "portrait",
-  "Scope": "/",
-  "start_url": "/login",
+  "name": "React PWA",
   "icons": [
     {
       "src": "./assets/img/icon-144-144.png",
@@ -23,5 +17,11 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "start_url": "./index.html",  
+  "scope": ".",
+  "background_color": "#1b7bc8",
+  "theme_color": "#2e8bd5",
+  "display": "standalone",
+  "orientation": "portrait"  
 }
