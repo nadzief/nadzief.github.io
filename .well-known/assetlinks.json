@@ -1,0 +1,5 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target" : { "namespace": "android_app", "package_name": "io.github.nadzief.twa",
+                   "sha256_cert_fingerprints": ["29:F5:6B:CB:C7:93:89:3E:EC:B1:5A:C6:74:B5:1B:02:13:6D:2C:6B:73:01:31:91:40:2D:D5:18:00:D2:E9:88"] }
+    }]
